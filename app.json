@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "Geo Finder app",
     "slug": "GeoFinder-App",
     "version": "3.2.0",

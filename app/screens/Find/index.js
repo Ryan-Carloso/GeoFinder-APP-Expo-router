@@ -42,58 +42,89 @@ import { styles } from '../../../Styles'; // Assumindo que este é o caminho cor
   }, []);
 
   const handleShowMap = async (event) => {
-    event.persist(); // Garante que o evento não seja reciclado
+    event.persist();
+    console.log('HandleShowMap initiated');
   
     const currentTime = new Date().getTime();
+    console.log('Current time:', currentTime);
   
     if (lastClickTime && currentTime - lastClickTime < 3600000) {
+      console.log('Using cached data, showing map directly');
       setShowMap(true);
       return;
     }
   
     if (!code || code.length !== 8) {
-      Alert.alert('Campo obrigatório', 'Por favor, insira um código válido de 8 caracteres.');
+      console.log('Invalid code:', code);
+      Alert.alert('Required field', 'Please enter a valid 8-character code.');
       return;
     }
   
     try {
       await AsyncStorage.setItem('savedData', JSON.stringify({ name, seunomename }));
+      console.log('Data saved to AsyncStorage');
     } catch (error) {
-      console.error('Erro ao salvar dados no AsyncStorage:', error);
+      console.error('AsyncStorage error:', error);
     }
   
     setLoading(true);
+    console.log('Loading state set to true');
   
-    const firebaseDatabaseUrl = 'https://geo-finder-7e641-default-rtdb.europe-west1.firebasedatabase.app/';
+    const supabaseUrl = 'https://zvxmeplxgwysaqiaibvh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2eG1lcGx4Z3d5c2FxaWFpYnZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMDUzMDMsImV4cCI6MjA1Nzg4MTMwM30.NMVYAimnYpkdmqYsGvyhwE5p2Mwy7-soN_UnzUBBRjs';
+
+    console.log('Attempting to fetch data from Supabase for code:', code);
+
     try {
-      const response = await axios.get(`${firebaseDatabaseUrl}/users/${code}.json`);
-  
-      if (response.data) {
-        const { latitude, longitude, name, code } = response.data;
-  
+      console.log('Making Supabase request to:', `${supabaseUrl}/rest/v1/locations?code=eq.${code}&select=*`);
+      const response = await axios.get(
+        `${supabaseUrl}/rest/v1/locations?code=eq.${code}&select=*`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+          }
+        }
+      );
+      console.log('Supabase response:', response.data);
+
+      if (response.data && response.data.length > 0) {
+        const locationData = response.data[0];
+        console.log('Location data found:', locationData);
+
+        const { latitude, longitude, name, code } = locationData;
+        console.log('Extracted coordinates:', { latitude, longitude });
+
         setFirebaseMarker({
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
-          name: name || 'Aleatório',
-          code: code || 'Aleatório',
+          name: name || 'Unknown',
+          code: code || 'Unknown',
         });
-  
+        console.log('Marker set with coordinates');
+
         setRegion({
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         });
-  
+        console.log('Region updated');
+
         setShowMap(true);
         setLastClickTime(currentTime);
+        console.log('Map display enabled');
       } else {
-        Alert.alert('Usuário não encontrado', 'Nenhuma localização encontrada para o código especificado.');
+        console.log('No location data found for code:', code);
+        Alert.alert('User not found', 'No location found for the specified code.');
       }
     } catch (error) {
-      console.error('Erro ao buscar dados de localização do Firebase:', error);
+      console.error('Supabase request error:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      Alert.alert('Error', 'Failed to fetch location data. Please try again.');
     } finally {
       setLoading(false);
+      console.log('Loading state set to false');
     }
   };
 
