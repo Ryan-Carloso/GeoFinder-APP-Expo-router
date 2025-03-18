@@ -12,12 +12,13 @@ import {
   Dimensions,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from "react-native"
 import { BlurView } from "expo-blur"
 import { LinearGradient } from "expo-linear-gradient"
 import LinkButton from "./screens/home/LinkButton"
 import SocialMedia from "./screens/home/social"
-import { useFonts } from "expo-font"
+
 
 const { width, height } = Dimensions.get("window")
 
@@ -29,12 +30,6 @@ export default function HomeScreen() {
   const titleFade = useRef(new Animated.Value(0)).current
   const cardFade = useRef(new Animated.Value(0)).current
   const socialFade = useRef(new Animated.Value(0)).current
-
-  // Load custom fonts
-  const [fontsLoaded] = useFonts({
-    "Montserrat-Bold": require("../assets/fonts/Montserrat-Bold.ttf"),
-    "Montserrat-Medium": require("../assets/fonts/Montserrat-Medium.ttf"),
-  })
 
   useEffect(() => {
     // Staggered animations for a more polished feel
@@ -76,18 +71,16 @@ export default function HomeScreen() {
     ]).start()
   }, [])
 
-  if (!fontsLoaded) {
-    return null // Or a loading screen
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <ScrollView>
       <ImageBackground
         source={require("../assets/backft.png")}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
       >
+        
         <LinearGradient colors={["rgba(0,0,0,0.7)", "rgba(0,0,0,0.4)", "rgba(0,0,0,0.7)"]} style={styles.overlay} />
 
         <View style={styles.contentContainer}>
@@ -141,6 +134,7 @@ export default function HomeScreen() {
           </Animated.View>
         </View>
       </ImageBackground>
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -173,7 +167,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 42,
-    fontFamily: "Montserrat-Bold",
+    fontWeight: "bold",
     color: "#fff",
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 1, height: 1 },
@@ -228,7 +222,7 @@ const styles = StyleSheet.create({
   },
   tutorialTitle: {
     fontSize: 28,
-    fontFamily: "Montserrat-Bold",
+    fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
     marginBottom: 25,
@@ -250,7 +244,7 @@ const styles = StyleSheet.create({
   instructionText: {
     fontSize: 16,
     color: "#fff",
-    fontFamily: "Montserrat-Medium",
+    fontWeight: "500",
     textAlign: "center",
     lineHeight: 24,
   },
@@ -267,7 +261,7 @@ const styles = StyleSheet.create({
   exploreButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "Montserrat-Bold",
+    fontWeight: "bold",
     letterSpacing: 0.5,
   },
   socialContainer: {
@@ -278,7 +272,7 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 0.6)",
     fontSize: 12,
     marginTop: 15,
-    fontFamily: "Montserrat-Medium",
+    fontWeight: "500",
   },
 })
 
